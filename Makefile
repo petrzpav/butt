@@ -23,8 +23,9 @@ PROGSINGLE  := butt.sh
 DATAPATHVAR := BUTT_DATAPATH
 USAGEVAR    := BUTT_USAGE
 VERSIONVAR  := BUTT_VERSION
-README      := README
+README      := README.md
 MANFILE     := $(PROG).1
+MANRST      := $(PROG).1.rst
 USAGEFILE   := $(PROG).usage
 VERFILE     := VERSION
 CHLOGFILE   := CHANGELOG.md
@@ -49,9 +50,9 @@ USAGEHEADER := "Usage: "
 define compile_usage
 	@echo -n "Compiling usage file ..."
 	@echo -n "$(USAGEHEADER)" > $(COMPILEDIR)/$(USAGEFILE)
-	@grep "^$(PROG) \[" $(README).rst | sed 's/\\|/|/g' >> $(COMPILEDIR)/$(USAGEFILE)
+	@grep "^$(PROG) \[" $(MANRST) | sed 's/\\|/|/g' >> $(COMPILEDIR)/$(USAGEFILE)
 	@echo ".TH" >> $(COMPILEDIR)/$(USAGEFILE)
-	@sed -n '/^OPTIONS/,/^INSTALL/p' $(README).rst  | grep -v "^\(INSTALL\|OPTIONS\|======\)" \
+	@sed -n '/^OPTIONS/,/^INSTALL/p' $(MANRST)  | grep -v "^\(INSTALL\|OPTIONS\|======\)" \
 	| sed 's/^\\/-/;s/^-/.TP 18\n-/' | sed 's/^    //' | sed '/^$$/d' >> $(COMPILEDIR)/$(USAGEFILE)
 	@echo DONE
 endef
@@ -78,17 +79,17 @@ compile:
 	@ echo -n "Compiling man file ..."
 	@ { \
 	echo -n ".TH \"$(PROG)\" \"1\" "; \
-	echo -n "\""; echo -n $$(stat -c %z $(README).rst | cut -d" " -f1); echo -n "\" "; \
+	echo -n "\""; echo -n $$(stat -c %z $(MANRST) | cut -d" " -f1); echo -n "\" "; \
 	echo -n "\"User Manual\" "; \
 	echo -n "\"Version "; echo -n $$(cat $(VERFILE)); echo -n "\" "; \
 	echo; \
 	} > $(COMPILEDIR)/$(MANFILE)
-	@ cat $(README).rst | sed -n '/^NAME/,/^INSTALL/p;/^EXIT STATUS/,//p' $(README).rst | grep -v "^INSTALL" | sed 's/`\(.*\)<\(.*\)>`__/\1\n\t\2/g' | $(RST2MAN) | tail -n+8 >> $(COMPILEDIR)/$(MANFILE)
+	@ cat $(MANRST) | sed -n '/^NAME/,/^INSTALL/p;/^EXIT STATUS/,//p' $(MANRST) | grep -v "^INSTALL" | sed 's/`\(.*\)<\(.*\)>`__/\1\n\t\2/g' | $(RST2MAN) | tail -n+8 >> $(COMPILEDIR)/$(MANFILE)
 	@ echo DONE
 
 	@ # Copy README into COMPILEDIR
 	@ echo -n "Compiling readme file ..."
-	@ cp $(README).rst $(COMPILEDIR)/$(README).rst
+	@ cp $(MANRST) $(COMPILEDIR)/$(MANRST)
 	@ echo DONE
 
 	$(compile_usage)
