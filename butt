@@ -170,7 +170,7 @@ function main {
   }
 
   function validate {
-    [ ${#@} -eq 1 ] \
+    [ $# -eq 1 ] \
       || err "Invalid number of arguments" \
       || { usage; return 2; }
     [ -f "$curdir/$1" ] \
@@ -288,6 +288,7 @@ function main {
            -- $BUTT_OPTIONS $*
   )
   then usage; return 2; fi
+
   eval set -- "$line"
 
   # load user options
